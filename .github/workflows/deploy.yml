@@ -1,0 +1,64 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          command_timeout: 15m
+          script: |
+            set -e
+            APP_DIR="/var/www/html/chatbot"
+
+            echo "=== Pulling latest code ==="
+            cd $APP_DIR
+            sudo chown -R ubuntu:www-data $APP_DIR
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== Installing PHP dependencies ==="
+            composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+            echo "=== Building frontend assets ==="
+            npm ci --silent
+            npm run build
+
+            echo "=== Running database migrations ==="
+            php artisan migrate --force
+
+            echo "=== Clearing and rebuilding caches ==="
+            php artisan config:clear
+            php artisan config:cache
+            php artisan view:clear
+            php artisan view:cache
+            php artisan event:clear
+            php artisan event:cache
+
+            echo "=== Restarting queue workers ==="
+            php artisan queue:restart
+
+            echo "=== Fixing permissions ==="
+            sudo chown -R www-data:www-data $APP_DIR/storage $APP_DIR/bootstrap/cache $APP_DIR/public/build
+            sudo chmod -R 775 $APP_DIR/storage $APP_DIR/bootstrap/cache
+
+            echo "=== Reloading PHP-FPM ==="
+            sudo systemctl reload php8.5-fpm
+
+            echo "=== Deploy complete! ==="
