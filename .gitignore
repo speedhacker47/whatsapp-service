@@ -16,6 +16,12 @@ yarn-error.log
 /storage/framework/views/*
 /storage/logs/*
 
+# Runtime & generated storage files
+/storage/.installed
+/storage/app/cleanup-report.md
+/storage/app/cleanup-results.json
+/storage/app/*.json
+
 # Laravel Mix / Vite
 /public/hot
 /public/storage
