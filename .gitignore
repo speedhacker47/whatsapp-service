@@ -1,0 +1,53 @@
+# Laravel specific
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+.env.*
+!.env.example
+
+# Laravel cache & logs
+/storage/*.key
+/storage/app/public
+/storage/debugbar
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# Laravel Mix / Vite
+/public/hot
+/public/storage
+/public/mix-manifest.json
+/public/build
+/build
+
+# Composer
+/composer.lock
+/composer.phar
+
+# IDE & OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+Thumbs.db
+
+# PHPUnit
+.phpunit.result.cache
+
+# Coverage reports
+/coverage/
+
+# Cache
+/.phpunit.cache/
+/bootstrap/cache/*.php
+
+# Other optional ignores
+Homestead.yaml
+Homestead.json
+.env.backup
