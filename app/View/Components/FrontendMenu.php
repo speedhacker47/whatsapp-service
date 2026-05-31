@@ -18,18 +18,22 @@ class FrontendMenu extends Component
     public function __construct()
     {
         $this->menuItems = Cache::remember('menu_items', 3600, function () {
-            return Page::select(['id', 'title', 'slug', 'parent_id', 'order'])
-                ->whereNull('parent_id')
-                ->where('show_in_menu', true)
-                ->where('status', true)
-                ->orderBy('order')
-                ->with(['children' => function ($query) {
-                    $query->select(['id', 'title', 'slug', 'parent_id', 'order'])
-                        ->where('show_in_menu', true)
-                        ->where('status', true)
-                        ->orderBy('order');
-                }])
-                ->get();
+            try {
+                return Page::select(['id', 'title', 'slug', 'parent_id', 'order'])
+                    ->whereNull('parent_id')
+                    ->where('show_in_menu', true)
+                    ->where('status', true)
+                    ->orderBy('order')
+                    ->with(['children' => function ($query) {
+                        $query->select(['id', 'title', 'slug', 'parent_id', 'order'])
+                            ->where('show_in_menu', true)
+                            ->where('status', true)
+                            ->orderBy('order');
+                    }])
+                    ->get();
+            } catch (\Exception $e) {
+                return collect([]);
+            }
         });
     }
 
